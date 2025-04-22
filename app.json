@@ -18,23 +18,40 @@
         {
           "locationWhenInUsePermission": "This app needs access to your location to show it on the map."
         }
+      ],
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsImpl": "mapbox",
+          "RNMapboxMapsDownloadToken": "sk.eyJ1Ijoiamxlb24yMTE3IiwiYSI6ImNtOXN0cWs0MTA0ZGUyam9mcmx1YXhuZm8ifQ.uoEjFdi-D_8VhfLplBBy6A"
+        }
       ]
     ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show it on the map."
-      }
+      },
+      "bundleIdentifier": "com.jacobleon.taskcom"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": [
+        "ACCESS_FINE_LOCATION", 
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "package": "com.jacobleon.taskcom"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
     }
   }
 }

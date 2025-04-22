@@ -1,51 +1,115 @@
-# Node modules
-node_modules/
+# OSX
+.DS_Store
 
-# Build output
-dist/
+# Xcode
 build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
 
-# Environment variables
-.env
-.env.*.local
+# Android/IntelliJ
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
 
-# Firebase
-google-services.json
-googleService-Info.plist
+# node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+!debug.keystore
+
+# Bundle artifacts
+*.jsbundle
+
+# CocoaPods
+/ios/Pods/
 
 # Expo
 .expo/
 .expo-shared/
+web-build/
+dist/
 
-# Metro bundler cache (React Native / Expo)
-metro-cache/
-.cache/
-npm-debug.log*
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# macOS system files
-.DS_Store
-.AppleDouble
-.LSOverride
+# TypeScript
+*.tsbuildinfo
 
-# VS Code settings
+# Firebase
+google-services.json
+GoogleService-Info.plist
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+
+# Testing
+coverage/
+
+# Editor directories and files
 .vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Logs
-logs
+# Temporary files
 *.log
-yarn-debug.log*
-yarn-error.log*
+*.tmp
+*.temp
 
-# OS generated files
-Icon?
-Thumbs.db
+# Mapbox
+mapbox-dl-token.txt
+
+# Certificates and Sensitive Information
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.certSigningRequest
+*.cer
+
+# Builds
+*.apk
+*.aab
+*.ipa
+
+# EAS
+.eas/
+eas.json
 
 # Misc
-*.swo
-*.swp
-
-# Optional: ignore your IDE configs
-.idea/
-*.iml
-*.sublime-workspace
-*.sublime-project
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
