@@ -11,10 +11,10 @@ import {
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useAuth } from "../../context/AuthContext";
 
-import BackgroundGrid from "../../components/common/auth/BackgroundGrid";
-import EmailField from "../../components/common/auth/EmailField";
-import AuthButton from "../../components/common/auth/AuthButton";
-import LinkText from "../../components/common/auth/LinkText";
+import BackgroundGrid from "../../components/auth/BackgroundGrid";
+import EmailField from "../../components/auth/EmailField";
+import AuthButton from "../../components/auth/AuthButton";
+import LinkText from "../../components/auth/LinkText";
 
 import { validateEmail } from "../../utils/validation";
 
