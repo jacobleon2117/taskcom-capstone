@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Platform } from "react-native";
 import * as Location from "expo-location";
 import MapboxGL from "@rnmapbox/maps";
-import { MAPBOX_ACCESS_TOKEN } from "../../../config/mapbox";
+import { MAPBOX_ACCESS_TOKEN } from "@/config/mapbox";
 
-// Initialize MapboxGL
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 interface MapViewProps {
@@ -24,7 +23,7 @@ interface MapViewProps {
 const MapView: React.FC<MapViewProps> = ({
   initialRegion = {
     latitude: 36.2524,
-    longitude: -95.7911, // Owasso, Oklahoma coordinates
+    longitude: -95.7911,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   },

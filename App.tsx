@@ -1,20 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// App.tsx
+import React from "react";
+import { StatusBar } from "expo-status-bar";
+import AppNavigator from "./src/navigation/AppNavigator";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs([
+  "ViewPropTypes will be removed from React Native",
+  "AsyncStorage has been extracted from react-native",
+]);
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style="light" />
+      <AppNavigator />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

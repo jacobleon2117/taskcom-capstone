@@ -12,13 +12,13 @@ import {
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useAuth } from "../../context/AuthContext";
 
-import BackgroundGrid from "../../components/common/auth/BackgroundGrid";
-import EmailField from "../../components/common/auth/EmailField";
-import PasswordField from "../../components/common/auth/PasswordField";
-import AuthButton from "../../components/common/auth/AuthButton";
-import LinkText from "../../components/common/auth/LinkText";
+import BackgroundGrid from "@/features/auth/components/BackgroundGrid";
+import EmailField from "@/features/auth/components/EmailField";
+import PasswordField from "@/features/auth/components/PasswordField";
+import AuthButton from "@/features/auth/components/AuthButton";
+import LinkText from "@/features/auth/components/LinkText";
 
-import { validateEmail, validatePassword } from "../../utils/validation";
+import { validateEmail, validatePassword } from "@/utils/validation";
 
 type AuthStackParamList = {
   Login: undefined;

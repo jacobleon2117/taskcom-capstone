@@ -1,186 +1,120 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  ReactNode,
-} from "react";
-import { User as FirebaseUser, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../config/firebase";
-import * as AuthService from "../services/firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "@/config/firebase";
+import { generateRandomCode } from "@/utils/codeGenerator";
 
-type UserRole = "admin" | "member" | "guest";
-
-interface AppUser extends Omit<FirebaseUser, "displayName"> {
-  role?: UserRole;
-  organizationCode?: string;
-  displayName?: string | null;
+interface RegisterParams {
+  email: string;
+  password: string;
+  displayName: string;
+  organizationName: string;
 }
 
-interface AuthContextType {
-  user: AppUser | null;
-  loading: boolean;
-  error: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (
-    email: string,
-    password: string,
-    displayName: string,
-    organizationName: string
-  ) => Promise<string | null>;
-  logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  joinOrganization: (organizationCode: string) => Promise<boolean>;
-  clearError: () => void;
-}
-
-// Create context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Provider component
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [user, setUser] = useState<AppUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          // Fetch additional user details from Firestore
-          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUser({
-              ...firebaseUser,
-              role: userData.role || "guest",
-              organizationCode: userData.organizationCode,
-              displayName: userData.displayName || firebaseUser.displayName,
-            } as AppUser);
-          } else {
-            setUser(firebaseUser);
-          }
-        } catch (err) {
-          console.error("Error fetching user details:", err);
-        }
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await AuthService.signInUser(email, password);
-    } catch (err: any) {
-      setError(err.message || "Login failed");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const register = async (
-    email: string,
-    password: string,
-    displayName: string,
-    organizationName: string
-  ) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await AuthService.registerWithEmailAndPassword({
-        email,
-        password,
-        displayName,
-        organizationName,
-      });
-      return result.organizationCode;
-    } catch (err: any) {
-      setError(err.message || "Registration failed");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    setLoading(true);
-    try {
-      await AuthService.logoutUser();
-      setUser(null);
-    } catch (err: any) {
-      setError(err.message || "Logout failed");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetPassword = async (email: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await AuthService.resetPassword(email);
-    } catch (err: any) {
-      setError(err.message || "Password reset failed");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const joinOrganization = async (organizationCode: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      if (!user) throw new Error("No user logged in");
-      return await AuthService.joinOrganization(user.uid, organizationCode);
-    } catch (err: any) {
-      setError(err.message || "Failed to join organization");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const clearError = () => {
-    setError(null);
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        error,
-        login,
-        register,
-        logout,
-        resetPassword,
-        joinOrganization,
-        clearError,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+export const signInUser = async (email: string, password: string) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    return userCredential.user;
+  } catch (error: any) {
+    console.error("Signin error:", error);
+    throw error;
+  }
 };
 
-// Custom hook to use the auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+export const registerWithEmailAndPassword = async ({
+  email,
+  password,
+  displayName,
+  organizationName,
+}: RegisterParams) => {
+  try {
+    // Create user in Firebase Authentication
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
+
+    // Generate a unique organization code
+    const organizationCode = generateRandomCode(6);
+
+    // Create user document in Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      email: user.email,
+      displayName,
+      role: "member",
+      organizationCode,
+      organizationName,
+      createdAt: new Date(),
+    });
+
+    // Create organization document
+    await setDoc(doc(db, "organizations", organizationCode), {
+      name: organizationName,
+      createdBy: user.uid,
+      createdAt: new Date(),
+      members: [user.uid],
+    });
+
+    return { user, organizationCode };
+  } catch (error: any) {
+    console.error("Registration error:", error);
+    throw error;
   }
-  return context;
+};
+
+export const logoutUser = async () => {
+  try {
+    await signOut(auth);
+  } catch (error: any) {
+    console.error("Logout error:", error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (email: string) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (error: any) {
+    console.error("Password reset error:", error);
+    throw error;
+  }
+};
+
+export const joinOrganization = async (
+  userId: string,
+  organizationCode: string
+) => {
+  try {
+    // Check if organization exists
+    const orgDoc = await getDoc(doc(db, "organizations", organizationCode));
+
+    if (!orgDoc.exists()) {
+      throw new Error("Invalid organization code");
+    }
+
+    // Update user document with organization code
+    await updateDoc(doc(db, "users", userId), {
+      organizationCode,
+    });
+
+    // Add user to organization members
+    await updateDoc(doc(db, "organizations", organizationCode), {
+      members: [...(orgDoc.data().members || []), userId],
+    });
+
+    return true;
+  } catch (error: any) {
+    console.error("Join organization error:", error);
+    throw error;
+  }
 };

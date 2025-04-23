@@ -1,8 +1,7 @@
-// src/features/member/screens/MapScreen/MapScreen.tsx
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { MapView, Marker } from "../../../../components/ui/Map";
+import { MapView, Marker } from "@/components/ui/Map";
 import * as Location from "expo-location";
 
 const MapScreen = () => {
@@ -19,7 +18,6 @@ const MapScreen = () => {
 
   const toggleLocationSharing = () => {
     setIsSharing(!isSharing);
-    // Here you would implement the actual location sharing logic with your backend
   };
 
   return (

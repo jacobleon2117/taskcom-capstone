@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -12,19 +11,18 @@ import {
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useAuth } from "../../context/AuthContext";
 
-import BackgroundGrid from "../../components/common/auth/BackgroundGrid";
-import EmailField from "../../components/common/auth/EmailField";
-import PasswordField from "../../components/common/auth/PasswordField";
-import FullNameField from "../../components/common/auth/FullNameField";
-import AuthButton from "../../components/common/auth/AuthButton";
-import LinkText from "../../components/common/auth/LinkText";
+import BackgroundGrid from "@/features/auth/components/BackgroundGrid";
+import EmailField from "@/features/auth/components/EmailField";
+import PasswordField from "@/features/auth/components/PasswordField";
+import FullNameField from "@/features/auth/components/FullNameField";
+import AuthButton from "@/features/auth/components/AuthButton";
+import LinkText from "@/features/auth/components/LinkText";
 
 import {
   validateEmail,
   validatePassword,
   validateFullName,
-  validateConfirmPassword,
-} from "../../utils/validation";
+} from "@/utils/validation";
 
 type AuthStackParamList = {
   Login: undefined;
@@ -46,18 +44,20 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [organizationName, setOrganizationName] = useState("");
 
   const [fullNameError, setFullNameError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  const [organizationNameError, setOrganizationNameError] = useState("");
 
   const { register, loading, error } = useAuth();
 
   const handleSignup = async () => {
-    // Validate full name
+    setFullNameError("");
+    setEmailError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
+
     const fullNameValidationError = validateFullName(fullName);
     if (fullNameValidationError) {
       setFullNameError(fullNameValidationError);
@@ -81,26 +81,14 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       return;
     }
 
-    if (!organizationName.trim()) {
-      setOrganizationNameError("Organization name is required");
-      return;
-    }
-
     try {
-      const organizationCode = await register(
-        email,
-        password,
-        fullName,
-        organizationName
-      );
+      await register(email, password, fullName);
 
-      if (organizationCode) {
-        Alert.alert(
-          "Registration Successful",
-          `Your organization code is: ${organizationCode}. Keep this code safe!`,
-          [{ text: "OK", onPress: () => navigation.navigate("Login") }]
-        );
-      }
+      Alert.alert(
+        "Registration Successful",
+        "Your account has been created successfully!",
+        [{ text: "OK", onPress: () => navigation.navigate("Login") }]
+      );
     } catch (err) {
       Alert.alert("Signup Failed", error || "An unexpected error occurred");
     }
@@ -157,28 +145,6 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
               error={confirmPasswordError}
             />
 
-            <View style={styles.organizationContainer}>
-              <Text style={styles.organizationLabel}>Organization Name</Text>
-              <View style={styles.organizationInputContainer}>
-                <TouchableOpacity
-                  style={styles.organizationInput}
-                  onPress={() => {}}
-                >
-                  <Text
-                    style={[
-                      styles.organizationInputText,
-                      !organizationName && styles.placeholderText,
-                    ]}
-                  >
-                    {organizationName || "Enter organization name"}
-                  </Text>
-                </TouchableOpacity>
-                {organizationNameError ? (
-                  <Text style={styles.errorText}>{organizationNameError}</Text>
-                ) : null}
-              </View>
-            </View>
-
             <AuthButton
               title="Sign Up"
               onPress={handleSignup}
@@ -223,33 +189,6 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     marginBottom: 32,
-  },
-  organizationContainer: {
-    marginBottom: 16,
-  },
-  organizationLabel: {
-    color: "white",
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  organizationInputContainer: {
-    marginBottom: 8,
-  },
-  organizationInput: {
-    backgroundColor: "white",
-    borderRadius: 25,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  organizationInputText: {
-    color: "black",
-  },
-  placeholderText: {
-    color: "#888",
-  },
-  errorText: {
-    color: "#ff6b6b",
-    marginTop: 4,
   },
   loginContainer: {
     flexDirection: "row",

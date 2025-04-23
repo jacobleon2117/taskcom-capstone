@@ -14,8 +14,8 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
-import { auth, db } from "../../config/firebase";
-import { generateSixDigitCode } from "../../utils/codeGenerator";
+import { auth, db } from "@/config/firebase";
+import { generateSixDigitCode } from "@/utils/codeGenerator";
 
 interface UserRegistrationData {
   email: string;
@@ -28,7 +28,6 @@ export const registerWithEmailAndPassword = async (
   userData: UserRegistrationData
 ) => {
   try {
-    // Create user in Firebase Authentication
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       userData.email,
@@ -36,10 +35,8 @@ export const registerWithEmailAndPassword = async (
     );
     const user = userCredential.user;
 
-    // Generate organization code
     const organizationCode = generateSixDigitCode();
 
-    // Create organization document
     const organizationRef = doc(
       collection(db, "organizations"),
       organizationCode
@@ -51,14 +48,13 @@ export const registerWithEmailAndPassword = async (
       code: organizationCode,
     });
 
-    // Create user document in Firestore
     const userRef = doc(db, "users", user.uid);
     await setDoc(userRef, {
       uid: user.uid,
       email: userData.email,
       displayName: userData.displayName,
       organizationCode: organizationCode,
-      role: "admin", // First user is always admin
+      role: "admin",
       createdAt: new Date(),
     });
 
@@ -118,13 +114,11 @@ export const joinOrganization = async (
   organizationCode: string
 ) => {
   try {
-    // Validate organization code first
     const isValidCode = await validateOrganizationCode(organizationCode);
     if (!isValidCode) {
       throw new Error("Invalid organization code");
     }
 
-    // Update user document with organization code
     const userRef = doc(db, "users", userId);
     await setDoc(
       userRef,
