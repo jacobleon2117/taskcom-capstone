@@ -7,11 +7,30 @@ import {
   FlatList,
   SafeAreaView,
   StatusBar,
+  ScrollView,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import CustomHeader from "@/components/CustomHeader";
 
-const MISSION_REPORTS = [
+// Define TypeScript interfaces
+interface MissionMetrics {
+  distanceCovered: string;
+  duration: string;
+  pinsDropped: number;
+}
+
+interface MissionReport {
+  id: string;
+  title: string;
+  date: string;
+  status: string;
+  summary: string;
+  metrics: MissionMetrics;
+}
+
+// Sample data
+const MISSION_REPORTS: MissionReport[] = [
   {
     id: "1",
     title: "Downtown Search Operation",
@@ -38,13 +57,13 @@ const MISSION_REPORTS = [
   },
 ];
 
-const MissionReportScreen = () => {
+const MissionReportScreen: React.FC = () => {
   const navigation = useNavigation();
   const [selectedFilter, setSelectedFilter] = useState("All");
 
   const filters = ["All", "Recent", "Completed", "Ongoing"];
 
-  const renderReport = ({ item }) => (
+  const renderReport = ({ item }: { item: MissionReport }) => (
     <TouchableOpacity style={styles.reportCard}>
       <View style={styles.reportHeader}>
         <Text style={styles.reportTitle}>{item.title}</Text>
@@ -88,18 +107,8 @@ const MissionReportScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Mission Reports</Text>
-          <View style={styles.headerRight} />
-        </View>
+        <CustomHeader title="Mission Reports" />
       </SafeAreaView>
 
       <View style={styles.filtersContainer}>
@@ -160,7 +169,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
     height: 60,
-    marginTop: 50,
   },
   headerTitle: {
     fontSize: 18,
@@ -197,7 +205,7 @@ const styles = StyleSheet.create({
   },
   reportsList: {
     padding: 16,
-    paddingBottom: 100,
+    paddingBottom: 100, // Extra padding for the floating tab bar
   },
   reportCard: {
     backgroundColor: "#111",

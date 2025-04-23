@@ -3,92 +3,98 @@ import {
   View,
   Text,
   TextInput,
-  Pressable,
   StyleSheet,
-  TextInputProps,
+  TouchableOpacity,
+  Platform,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons"; // Make sure you have expo/vector-icons installed
 
-interface PasswordFieldProps extends TextInputProps {
+interface PasswordFieldProps {
   label?: string;
   value: string;
   onChangeText: (text: string) => void;
-  placeholder?: string;
   error?: string;
+  placeholder?: string;
 }
 
 const PasswordField: React.FC<PasswordFieldProps> = ({
   label = "Password",
   value,
   onChangeText,
-  placeholder = "Enter your password",
   error,
-  ...rest
+  placeholder = "Enter your password",
 }) => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+  const toggleSecureEntry = () => {
+    setSecureTextEntry(!secureTextEntry);
+  };
 
   return (
-    <View style={styles.fieldContainer}>
+    <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
+
       <View style={[styles.inputContainer, error ? styles.inputError : null]}>
         <TextInput
           style={styles.input}
-          placeholder={placeholder}
           value={value}
           onChangeText={onChangeText}
-          secureTextEntry={!showPassword}
-          placeholderTextColor="#888"
+          secureTextEntry={secureTextEntry}
+          placeholder={placeholder}
+          placeholderTextColor="#aaa"
           autoCapitalize="none"
-          {...rest}
+          autoCorrect={false}
+          textContentType="oneTimeCode" // This prevents iOS from suggesting passwords
         />
-        <Pressable onPress={() => setShowPassword(!showPassword)}>
+
+        <TouchableOpacity
+          onPress={toggleSecureEntry}
+          style={styles.iconContainer}
+        >
           <Ionicons
-            name={showPassword ? "eye-off-outline" : "eye-outline"}
-            size={20}
-            color="#888"
+            name={secureTextEntry ? "eye-outline" : "eye-off-outline"}
+            size={24}
+            color="rgba(0, 0, 0, 0.7)"
           />
-        </Pressable>
+        </TouchableOpacity>
       </View>
-      <View style={styles.errorContainer}>
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      </View>
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  fieldContainer: {
+  container: {
     marginBottom: 16,
-    height: 90,
   },
   label: {
     color: "white",
-    fontSize: 16,
     marginBottom: 8,
+    fontSize: 16,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
-    borderRadius: 25,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: "transparent",
-  },
-  inputError: {
-    borderColor: "#ff6b6b",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: 8,
   },
   input: {
     flex: 1,
-    paddingVertical: 12,
+    padding: 12,
+    fontSize: 16,
+    color: "#333",
   },
-  errorContainer: {
-    minHeight: 20,
-    justifyContent: "center",
+  inputError: {
+    borderColor: "#FF5252",
+    borderWidth: 1,
   },
   errorText: {
-    color: "#ff6b6b",
+    color: "#FF5252",
     marginTop: 4,
+  },
+  iconContainer: {
+    padding: 10,
   },
 });
 

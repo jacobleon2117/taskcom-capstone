@@ -28,6 +28,7 @@ type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
   ForgotPassword: undefined;
+  CreateOrganization: undefined;
 };
 
 type SignupScreenNavigationProp = StackNavigationProp<
@@ -52,7 +53,10 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
   const { register, loading, error } = useAuth();
 
+  // In your SignupScreen.tsx file, add this improved error handling:
+
   const handleSignup = async () => {
+    // Your existing validation code...
     setFullNameError("");
     setEmailError("");
     setPasswordError("");
@@ -84,13 +88,43 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     try {
       await register(email, password, fullName);
 
-      Alert.alert(
-        "Registration Successful",
-        "Your account has been created successfully!",
-        [{ text: "OK", onPress: () => navigation.navigate("Login") }]
-      );
-    } catch (err) {
-      Alert.alert("Signup Failed", error || "An unexpected error occurred");
+      // Navigate to the CreateOrganization screen
+      navigation.navigate("CreateOrganization");
+    } catch (err: any) {
+      // Handle specific Firebase error codes
+      if (err.code === "auth/email-already-in-use") {
+        Alert.alert(
+          "Email Already Registered",
+          "This email address is already in use. Would you like to login instead?",
+          [
+            {
+              text: "Go to Login",
+              onPress: () => navigation.navigate("Login"),
+            },
+            {
+              text: "Try Again",
+              style: "cancel",
+            },
+          ]
+        );
+      } else if (err.code === "auth/weak-password") {
+        setPasswordError(
+          "Password is too weak. Please use a stronger password."
+        );
+      } else if (err.code === "auth/invalid-email") {
+        setEmailError("Invalid email address format.");
+      } else if (err.code === "auth/network-request-failed") {
+        Alert.alert(
+          "Network Error",
+          "Please check your internet connection and try again."
+        );
+      } else {
+        // Generic error handling for other errors
+        Alert.alert(
+          "Signup Failed",
+          err.message || "An unexpected error occurred"
+        );
+      }
     }
   };
 

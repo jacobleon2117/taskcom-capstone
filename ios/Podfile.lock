@@ -1826,6 +1826,8 @@ PODS:
     - React-utils (= 0.76.9)
   - RNCAsyncStorage (1.24.0):
     - React-Core
+  - RNCPicker (2.11.0):
+    - React-Core
   - RNGestureHandler (2.12.1):
     - React-Core
   - rnmapbox-maps (10.1.38):
@@ -2074,6 +2076,7 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "rnmapbox-maps (from `../node_modules/@rnmapbox/maps`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -2256,6 +2259,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNCPicker:
+    :path: "../node_modules/@react-native-picker/picker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   rnmapbox-maps:
@@ -2354,6 +2359,7 @@ SPEC CHECKSUMS:
   ReactCodegen: f853a20cc9125c5521c8766b4b49375fec20648b
   ReactCommon: 300d8d9c5cb1a6cd79a67cf5d8f91e4d477195f9
   RNCAsyncStorage: b6410dead2732b5c72a7fdb1ecb5651bbcf4674b
+  RNCPicker: 124b4fb5859ba1a3fd53a91e16d1e7a0fc016e59
   RNGestureHandler: 627182485becfd74f122c83f93cce2be20c2e8c8
   rnmapbox-maps: 0eca9a44a883564bfbcbbb649ba3087224612fd6
   RNReanimated: 3ea9154cc0013d1c7a9f55e1c2f0c5f535a0af8a
