@@ -22,7 +22,7 @@
         "@rnmapbox/maps",
         {
           "RNMapboxMapsImpl": "mapbox",
-          "RNMapboxMapsDownloadToken": "sk.eyJ1Ijoiamxlb24yMTE3IiwiYSI6ImNtOXN0cWs0MTA0ZGUyam9mcmx1YXhuZm8ifQ.uoEjFdi-D_8VhfLplBBy6A"
+          "RNMapboxMapsDownloadToken": "${MAPBOX_DOWNLOAD_TOKEN}"
         }
       ]
     ],
@@ -53,7 +53,17 @@
     "extra": {
       "eas": {
         "projectId": "75250b0f-5ca4-4330-9303-3211110eced8"
-      }
+      },
+      "FIREBASE_API_KEY": "AIzaSyD4gqTpA2TEwIBkTzea1_AlQi-kMXM4iFs",
+      "FIREBASE_AUTH_DOMAIN": "taskcom-capstone.firebaseapp.com",
+      "FIREBASE_PROJECT_ID": "taskcom-capstone",
+      "FIREBASE_STORAGE_BUCKET": "taskcom-capstone.firebasestorage.app",
+      "FIREBASE_MESSAGING_SENDER_ID": "311178963684",
+      "FIREBASE_APP_ID": "1:311178963684:web:5e01b541cc775b48449af1",
+      "FIREBASE_MEASUREMENT_ID": "G-T0702WC0CM",
+      "MAPBOX_ACCESS_TOKEN": "pk.eyJ1Ijoiamxlb24yMTE3IiwiYSI6ImNtOXN0YWtocjA0N3cybW9oYnExNnB2aHoifQ.0RI26cYK0g0ln_mDf558vA",
+      "MAPBOX_DOWNLOAD_TOKEN": "sk.eyJ1Ijoiamxlb24yMTE3IiwiYSI6ImNtOXN0cWs0MTA0ZGUyam9mcmx1YXhuZm8ifQ.uoEjFdi-D_8VhfLplBBy6A",
+      "APP_ENV": "development"
     },
     "owner": "jleon2117"
   }
