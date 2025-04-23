@@ -1,3 +1,4 @@
+// src/features/auth/screens/SignupScreen/SignupScreen.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -8,8 +9,8 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { useAuth } from "../../context/AuthContext";
+import { SignupScreenNavigationProp } from "@/types/navigation";
 
 import BackgroundGrid from "@/features/auth/components/BackgroundGrid";
 import EmailField from "@/features/auth/components/EmailField";
@@ -17,24 +18,14 @@ import PasswordField from "@/features/auth/components/PasswordField";
 import FullNameField from "@/features/auth/components/FullNameField";
 import AuthButton from "@/features/auth/components/AuthButton";
 import LinkText from "@/features/auth/components/LinkText";
+import AuthHeader from "@/features/auth/components/AuthHeader";
 
 import {
   validateEmail,
   validatePassword,
   validateFullName,
+  validateConfirmPassword,
 } from "@/utils/validation";
-
-type AuthStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-  ForgotPassword: undefined;
-  CreateOrganization: undefined;
-};
-
-type SignupScreenNavigationProp = StackNavigationProp<
-  AuthStackParamList,
-  "Signup"
->;
 
 interface SignupScreenProps {
   navigation: SignupScreenNavigationProp;
@@ -53,10 +44,8 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
   const { register, loading, error } = useAuth();
 
-  // In your SignupScreen.tsx file, add this improved error handling:
-
   const handleSignup = async () => {
-    // Your existing validation code...
+    // Clear previous errors
     setFullNameError("");
     setEmailError("");
     setPasswordError("");
@@ -80,15 +69,19 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match");
+    const confirmPasswordValidationError = validateConfirmPassword(
+      password,
+      confirmPassword
+    );
+    if (confirmPasswordValidationError) {
+      setConfirmPasswordError(confirmPasswordValidationError);
       return;
     }
 
     try {
       await register(email, password, fullName);
 
-      // Navigate to the CreateOrganization screen
+      // Navigate to the CreateOrganization screen on successful registration
       navigation.navigate("CreateOrganization");
     } catch (err: any) {
       // Handle specific Firebase error codes
@@ -139,8 +132,10 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Start your TaskCom journey</Text>
+            <AuthHeader
+              title="Create Account"
+              subtitle="Start your TaskCom journey"
+            />
 
             <FullNameField
               value={fullName}
@@ -177,6 +172,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                 setConfirmPasswordError("");
               }}
               error={confirmPasswordError}
+              placeholder="Confirm your password"
             />
 
             <AuthButton
@@ -210,19 +206,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 24,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "white",
-    textAlign: "center",
-    marginBottom: 32,
   },
   loginContainer: {
     flexDirection: "row",

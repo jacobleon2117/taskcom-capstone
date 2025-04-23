@@ -14,36 +14,11 @@ import {
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import CustomHeader from "@/components/CustomHeader";
+import NotificationButton from "@/components/ui/NotificationButton";
 
-const TEAM_MEMBERS = [
-  {
-    id: "1",
-    name: "John Doe",
-    role: "Team Lead",
-    email: "john.doe@example.com",
-    phone: "(555) 123-4567",
-    status: "active",
-    lastActive: "10 min ago",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    role: "Field Agent",
-    email: "jane.smith@example.com",
-    phone: "(555) 987-6543",
-    status: "active",
-    lastActive: "2 hours ago",
-  },
-  {
-    id: "3",
-    name: "Mike Johnson",
-    role: "Support Staff",
-    email: "mike.johnson@example.com",
-    phone: "(555) 456-7890",
-    status: "inactive",
-    lastActive: "3 days ago",
-  },
-];
+// Use empty list or real data from API
+const TEAM_MEMBERS = [];
 
 const TeamManagementScreen = () => {
   const navigation = useNavigation();
@@ -70,6 +45,19 @@ const TeamManagementScreen = () => {
     setNewMemberAdmin(false);
     setAddMemberModalVisible(false);
   };
+
+  const handleNotificationPress = () => {
+    // Handle notification press
+  };
+
+  const AddMemberButton = () => (
+    <TouchableOpacity
+      style={styles.addButton}
+      onPress={() => setAddMemberModalVisible(true)}
+    >
+      <Ionicons name="person-add" size={24} color="#F09737" />
+    </TouchableOpacity>
+  );
 
   const filteredMembers = TEAM_MEMBERS.filter(
     (member) =>
@@ -140,26 +128,25 @@ const TeamManagementScreen = () => {
     </TouchableOpacity>
   );
 
+  const EmptyState = () => (
+    <View style={styles.emptyContainer}>
+      <Ionicons name="people-outline" size={60} color="#333" />
+      <Text style={styles.emptyText}>No team members yet</Text>
+      <Text style={styles.emptySubtext}>
+        Add team members to start collaborating
+      </Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Team Management</Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setAddMemberModalVisible(true)}
-          >
-            <Ionicons name="person-add" size={24} color="#F09737" />
-          </TouchableOpacity>
-        </View>
+        <CustomHeader
+          title="Team Management"
+          rightComponent={<AddMemberButton />}
+        />
       </SafeAreaView>
 
       <View style={styles.searchContainer}>
@@ -180,12 +167,16 @@ const TeamManagementScreen = () => {
         </View>
       </View>
 
-      <FlatList
-        data={filteredMembers}
-        renderItem={renderMemberItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.membersList}
-      />
+      {TEAM_MEMBERS.length > 0 ? (
+        <FlatList
+          data={filteredMembers}
+          renderItem={renderMemberItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.membersList}
+        />
+      ) : (
+        <EmptyState />
+      )}
 
       <Modal
         visible={addMemberModalVisible}
@@ -290,25 +281,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     backgroundColor: "#000",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    height: 60,
-    marginTop: 50,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  backButton: {
-    padding: 8,
-  },
-  addButton: {
-    padding: 8,
   },
   searchContainer: {
     paddingHorizontal: 16,
@@ -424,6 +396,22 @@ const styles = StyleSheet.create({
   dangerButtonText: {
     color: "#ff6b6b",
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  emptyText: {
+    color: "#aaa",
+    fontSize: 18,
+    marginTop: 16,
+  },
+  emptySubtext: {
+    color: "#777",
+    textAlign: "center",
+    marginTop: 8,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -508,6 +496,9 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  addButton: {
+    padding: 8,
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -8,62 +8,38 @@ import {
   SafeAreaView,
   StatusBar,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import CustomHeader from "@/components/CustomHeader";
+import NotificationButton from "@/components/ui/NotificationButton";
+import { useAuth } from "@/features/auth/context/AuthContext";
 
-// Define TypeScript interfaces
-interface MissionMetrics {
-  distanceCovered: string;
-  duration: string;
-  pinsDropped: number;
-}
-
-interface MissionReport {
-  id: string;
-  title: string;
-  date: string;
-  status: string;
-  summary: string;
-  metrics: MissionMetrics;
-}
-
-// Sample data
-const MISSION_REPORTS: MissionReport[] = [
-  {
-    id: "1",
-    title: "Downtown Search Operation",
-    date: "Apr 18, 2025",
-    status: "Completed",
-    summary: "Successfully searched 4 blocks with 2 team members",
-    metrics: {
-      distanceCovered: "2.3 miles",
-      duration: "3 hours",
-      pinsDropped: 7,
-    },
-  },
-  {
-    id: "2",
-    title: "River Patrol",
-    date: "Apr 15, 2025",
-    status: "Completed",
-    summary: "Patrolled 3 miles of riverbank checking for flooding conditions",
-    metrics: {
-      distanceCovered: "3.1 miles",
-      duration: "4 hours",
-      pinsDropped: 5,
-    },
-  },
-];
-
-const MissionReportScreen: React.FC = () => {
+const MemberMissionReportScreen = () => {
   const navigation = useNavigation();
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [missionReports, setMissionReports] = useState([]);
+  const { user } = useAuth();
 
   const filters = ["All", "Recent", "Completed", "Ongoing"];
 
-  const renderReport = ({ item }: { item: MissionReport }) => (
+  useEffect(() => {
+    // Simulate loading reports
+    const timer = setTimeout(() => {
+      setMissionReports([]);
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleNotificationPress = () => {
+    // Handle notification press
+  };
+
+  const renderReport = ({ item }) => (
     <TouchableOpacity style={styles.reportCard}>
       <View style={styles.reportHeader}>
         <Text style={styles.reportTitle}>{item.title}</Text>
@@ -108,7 +84,13 @@ const MissionReportScreen: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
-        <CustomHeader title="Mission Reports" />
+        <CustomHeader
+          title="Mission Reports"
+          showBackButton={false}
+          rightComponent={
+            <NotificationButton onPress={handleNotificationPress} />
+          }
+        />
       </SafeAreaView>
 
       <View style={styles.filtersContainer}>
@@ -135,9 +117,14 @@ const MissionReportScreen: React.FC = () => {
         </ScrollView>
       </View>
 
-      {MISSION_REPORTS.length > 0 ? (
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#F09737" />
+          <Text style={styles.loadingText}>Loading reports...</Text>
+        </View>
+      ) : missionReports.length > 0 ? (
         <FlatList
-          data={MISSION_REPORTS}
+          data={missionReports}
           renderItem={renderReport}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.reportsList}
@@ -163,23 +150,14 @@ const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: "#000",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 16,
-    height: 60,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerRight: {
-    width: 40,
+  loadingText: {
+    color: "#aaa",
+    marginTop: 12,
   },
   filtersContainer: {
     paddingHorizontal: 16,
@@ -297,4 +275,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MissionReportScreen;
+export default MemberMissionReportScreen;

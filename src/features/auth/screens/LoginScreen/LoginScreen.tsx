@@ -1,35 +1,25 @@
+// src/features/auth/screens/LoginScreen/LoginScreen.tsx
 import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   Alert,
 } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { useAuth } from "../../context/AuthContext";
+import { LoginScreenNavigationProp } from "@/types/navigation";
 
 import BackgroundGrid from "@/features/auth/components/BackgroundGrid";
 import EmailField from "@/features/auth/components/EmailField";
 import PasswordField from "@/features/auth/components/PasswordField";
 import AuthButton from "@/features/auth/components/AuthButton";
 import LinkText from "@/features/auth/components/LinkText";
+import AuthHeader from "@/features/auth/components/AuthHeader";
 
 import { validateEmail, validatePassword } from "@/utils/validation";
-
-type AuthStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-  ForgotPassword: undefined;
-};
-
-type LoginScreenNavigationProp = StackNavigationProp<
-  AuthStackParamList,
-  "Login"
->;
 
 interface LoginScreenProps {
   navigation: LoginScreenNavigationProp;
@@ -44,6 +34,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { login, error, loading } = useAuth();
 
   const handleLogin = async () => {
+    // Clear previous errors
+    setEmailError("");
+    setPasswordError("");
+
     const emailValidationError = validateEmail(email);
     if (emailValidationError) {
       setEmailError(emailValidationError);
@@ -74,8 +68,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-            <Text style={styles.title}>TaskCom</Text>
-            <Text style={styles.subtitle}>Team Communication Platform</Text>
+            <AuthHeader />
 
             <EmailField
               value={email}
@@ -133,19 +126,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 24,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "white",
-    textAlign: "center",
-    marginBottom: 32,
   },
   forgotPasswordContainer: {
     alignItems: "flex-end",

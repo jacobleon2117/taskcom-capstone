@@ -1,3 +1,4 @@
+// src/features/auth/screens/OrgJoinScreen/JoinOrgScreen.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -9,22 +10,13 @@ import {
   Alert,
   TextInput,
 } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { useAuth } from "../../context/AuthContext";
+import { JoinOrganizationScreenNavigationProp } from "@/types/navigation";
 
 import BackgroundGrid from "@/features/auth/components/BackgroundGrid";
 import AuthButton from "@/features/auth/components/AuthButton";
-
-type OrgStackParamList = {
-  CreateOrganization: undefined;
-  JoinOrganization: undefined;
-  Dashboard: undefined;
-};
-
-type JoinOrganizationScreenNavigationProp = StackNavigationProp<
-  OrgStackParamList,
-  "JoinOrganization"
->;
+import AuthHeader from "@/features/auth/components/AuthHeader";
+import LinkText from "@/features/auth/components/LinkText";
 
 interface JoinOrganizationScreenProps {
   navigation: JoinOrganizationScreenNavigationProp;
@@ -50,6 +42,9 @@ const JoinOrganizationScreen: React.FC<JoinOrganizationScreenProps> = ({
   };
 
   const handleJoinOrganization = async () => {
+    // Clear previous errors
+    setCodeError("");
+
     // Validate organization code
     const validationError = validateOrganizationCode(organizationCode);
     if (validationError) {
@@ -68,7 +63,10 @@ const JoinOrganizationScreen: React.FC<JoinOrganizationScreenProps> = ({
         [
           {
             text: "Continue to Dashboard",
-            onPress: () => navigation.navigate("Dashboard"),
+            onPress: () => {
+              // Navigation will be handled automatically by AppNavigator
+              // when user state is updated
+            },
           },
         ]
       );
@@ -91,10 +89,10 @@ const JoinOrganizationScreen: React.FC<JoinOrganizationScreenProps> = ({
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-            <Text style={styles.title}>Join Organization</Text>
-            <Text style={styles.subtitle}>
-              Enter the 6-digit code provided by your organization admin
-            </Text>
+            <AuthHeader
+              title="Join Organization"
+              subtitle="Enter the 6-digit code provided by your organization admin"
+            />
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Organization Code</Text>
@@ -125,12 +123,11 @@ const JoinOrganizationScreen: React.FC<JoinOrganizationScreenProps> = ({
               <Text style={styles.createText}>
                 Need to create a new organization?{" "}
               </Text>
-              <Text
-                style={styles.createLinkText}
+              <LinkText
+                text="Create"
                 onPress={() => navigation.navigate("CreateOrganization")}
-              >
-                Create
-              </Text>
+                style={styles.createLinkText}
+              />
             </View>
           </View>
         </ScrollView>
@@ -150,19 +147,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 24,
   },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "white",
-    textAlign: "center",
-    marginBottom: 32,
-  },
   inputContainer: {
     marginBottom: 24,
   },
@@ -173,7 +157,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 8,
+    borderRadius: 25, // Match other input styles
     padding: 12,
     fontSize: 16,
     color: "#333",
@@ -198,7 +182,6 @@ const styles = StyleSheet.create({
     color: "white",
   },
   createLinkText: {
-    color: "white",
     fontWeight: "bold",
   },
 });

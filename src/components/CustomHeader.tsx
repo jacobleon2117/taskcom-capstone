@@ -17,10 +17,11 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
   const navigation = useNavigation();
   const route = useRoute();
 
-  // Don't show back button on the home screen
-  const isHomeScreen = route.name === "Home";
+  // Don't show back button on the main tab screens
+  const mainScreens = ["Home", "Map", "Missions", "Team", "Profile"];
+  const isMainScreen = mainScreens.includes(route.name);
   const shouldShowBackButton =
-    showBackButton && !isHomeScreen && navigation.canGoBack();
+    showBackButton && !isMainScreen && navigation.canGoBack();
 
   return (
     <View style={styles.container}>
@@ -54,6 +55,8 @@ const styles = StyleSheet.create({
     height: 60,
     paddingHorizontal: 16,
     backgroundColor: "#000",
+    borderBottomWidth: 1,
+    borderBottomColor: "#222",
   },
   leftContainer: {
     width: 40,

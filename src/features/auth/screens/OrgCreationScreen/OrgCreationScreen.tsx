@@ -8,29 +8,17 @@ import {
   ScrollView,
   Alert,
   TextInput,
+  TouchableOpacity,
+  Modal,
 } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { useAuth } from "../../context/AuthContext";
-import { Picker } from "@react-native-picker/picker";
+import { CreateOrganizationScreenNavigationProp } from "@/types/navigation";
 
 // Import custom components
 import BackgroundGrid from "@/features/auth/components/BackgroundGrid";
 import AuthButton from "@/features/auth/components/AuthButton";
-
-// Define navigation types
-type RootStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-  ForgotPassword: undefined;
-  CreateOrganization: undefined;
-  JoinOrganization: undefined;
-  Dashboard: undefined;
-};
-
-type CreateOrganizationScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "CreateOrganization"
->;
+import AuthHeader from "@/features/auth/components/AuthHeader";
+import LinkText from "@/features/auth/components/LinkText";
 
 interface CreateOrganizationScreenProps {
   navigation: CreateOrganizationScreenNavigationProp;
@@ -56,6 +44,7 @@ const CreateOrganizationScreen = ({
   );
   const [organizationNameError, setOrganizationNameError] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
+  const [showTypeModal, setShowTypeModal] = useState(false);
 
   // Get auth context
   const { createOrganization, loading, error } = useAuth();
@@ -73,6 +62,9 @@ const CreateOrganizationScreen = ({
 
   // Handle organization creation
   const handleCreateOrganization = async () => {
+    // Clear previous errors
+    setOrganizationNameError("");
+
     // Validate organization name
     const nameError = validateOrganizationName(organizationName);
     if (nameError) {
@@ -92,7 +84,10 @@ const CreateOrganizationScreen = ({
         [
           {
             text: "Continue to Dashboard",
-            onPress: () => navigation.navigate("Dashboard"),
+            onPress: () => {
+              // Navigation will be handled automatically by AppNavigator
+              // when user state is updated
+            },
           },
         ]
       );
@@ -115,8 +110,10 @@ const CreateOrganizationScreen = ({
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-            <Text style={styles.title}>Create Organization</Text>
-            <Text style={styles.subtitle}>Set up your team workspace</Text>
+            <AuthHeader
+              title="Create Organization"
+              subtitle="Set up your team workspace"
+            />
 
             {/* Organization Name Input */}
             <View style={styles.inputContainer}>
@@ -139,22 +136,15 @@ const CreateOrganizationScreen = ({
               ) : null}
             </View>
 
-            {/* Organization Type Picker */}
+            {/* Organization Type Selector */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Organization Type</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={organizationType}
-                  onValueChange={(itemValue: string) =>
-                    setOrganizationType(itemValue)
-                  }
-                  style={styles.picker}
-                >
-                  {organizationTypes.map((type) => (
-                    <Picker.Item key={type} label={type} value={type} />
-                  ))}
-                </Picker>
-              </View>
+              <TouchableOpacity
+                style={styles.typeSelector}
+                onPress={() => setShowTypeModal(true)}
+              >
+                <Text style={styles.typeSelectorText}>{organizationType}</Text>
+              </TouchableOpacity>
             </View>
 
             {/* Generated Code Display */}
@@ -181,15 +171,59 @@ const CreateOrganizationScreen = ({
               <Text style={styles.joinText}>
                 Want to join an existing organization?{" "}
               </Text>
-              <Text
-                style={styles.joinLinkText}
+              <LinkText
+                text="Join"
                 onPress={() => navigation.navigate("JoinOrganization")}
-              >
-                Join
-              </Text>
+                style={styles.joinLinkText}
+              />
             </View>
           </View>
         </ScrollView>
+
+        {/* Organization Type Selection Modal */}
+        <Modal
+          visible={showTypeModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowTypeModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Organization Type</Text>
+
+              {organizationTypes.map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.typeOption,
+                    type === organizationType && styles.selectedTypeOption,
+                  ]}
+                  onPress={() => {
+                    setOrganizationType(type);
+                    setShowTypeModal(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.typeOptionText,
+                      type === organizationType &&
+                        styles.selectedTypeOptionText,
+                    ]}
+                  >
+                    {type}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowTypeModal(false)}
+              >
+                <Text style={styles.closeButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
     </BackgroundGrid>
   );
@@ -207,19 +241,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 24,
   },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "white",
-    textAlign: "center",
-    marginBottom: 32,
-  },
   inputContainer: {
     marginBottom: 16,
   },
@@ -230,7 +251,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 8,
+    borderRadius: 25,
     padding: 12,
     fontSize: 16,
     color: "#333",
@@ -243,14 +264,16 @@ const styles = StyleSheet.create({
     color: "#FF5252",
     marginTop: 4,
   },
-  pickerContainer: {
+  typeSelector: {
     backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 8,
-    overflow: "hidden",
+    borderRadius: 25,
+    padding: 12,
+    height: 45,
+    justifyContent: "center",
   },
-  picker: {
-    height: 50,
+  typeSelectorText: {
     color: "#333",
+    fontSize: 16,
   },
   codeContainer: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -285,8 +308,54 @@ const styles = StyleSheet.create({
     color: "white",
   },
   joinLinkText: {
-    color: "white",
     fontWeight: "bold",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#222",
+    borderRadius: 12,
+    padding: 20,
+    width: "80%",
+  },
+  modalTitle: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  typeOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  selectedTypeOption: {
+    backgroundColor: "#F09737",
+  },
+  typeOptionText: {
+    color: "white",
+    fontSize: 16,
+  },
+  selectedTypeOptionText: {
+    color: "black",
+    fontWeight: "bold",
+  },
+  closeButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#444",
+  },
+  closeButtonText: {
+    color: "#F09737",
+    fontSize: 16,
   },
 });
 

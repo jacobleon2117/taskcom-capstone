@@ -3,12 +3,12 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import HomeScreen from "@/features/dashboard/screens/HomeScreen/HomeScreen";
-import MapScreen from "@/features/admin/screens/MapScreen/MapScreen";
-import ScheduleScreen from "@/features/member/screens/ScheduleScreen/ScheduleScreen";
+import MapScreen from "@/features/admin/screens/MapScreen";
+import ScheduleScreen from "@/features/member/screens/MemberScheduleScreen";
 import MessagesScreen from "@/features/dashboard/screens/MessagesScreen/MessagesScreen";
 import MissionReportScreen from "@/features/member/screens/MissionReportScreen/MissionReportScreen";
 import ProfileScreen from "@/features/profile/screens/ProfileScreen/ProfileScreen";
-import TeamManagementScreen from "@/features/admin/screens/TeamManagementScreen/TeamManagementScreen";
+import TeamManagementScreen from "@/features/admin/screens/TeamManagementScreen";
 
 const Tab = createBottomTabNavigator();
 

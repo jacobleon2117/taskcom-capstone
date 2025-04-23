@@ -1,61 +1,31 @@
 import React, { useState, useEffect } from "react";
 import {
-  StyleSheet,
   View,
   Text,
+  StyleSheet,
   TouchableOpacity,
   FlatList,
   SafeAreaView,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
-const SHIFTS = [
-  {
-    id: "1",
-    title: "Morning Shift",
-    date: "Today",
-    startTime: "08:00 AM",
-    endTime: "12:00 PM",
-    location: "Main Campus",
-  },
-  {
-    id: "2",
-    title: "Training Session",
-    date: "Tomorrow",
-    startTime: "10:00 AM",
-    endTime: "02:00 PM",
-    location: "Training Facility",
-  },
-  {
-    id: "3",
-    title: "Evening Patrol",
-    date: "Wed, Apr 24",
-    startTime: "06:00 PM",
-    endTime: "10:00 PM",
-    location: "East District",
-  },
-  {
-    id: "4",
-    title: "Team Meeting",
-    date: "Fri, Apr 26",
-    startTime: "09:00 AM",
-    endTime: "11:00 AM",
-    location: "Conference Room",
-  },
-];
+import CustomHeader from "@/components/CustomHeader";
+import NotificationButton from "@/components/ui/NotificationButton";
+import { useAuth } from "@/features/auth/context/AuthContext";
 
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const ScheduleScreen = () => {
+const MemberScheduleScreen = () => {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [currentMonth, setCurrentMonth] = useState("");
-  const [calendarDays, setCalendarDays] = useState<
-    Array<{ date: number; isCurrentMonth: boolean }>
-  >([]);
+  const [calendarDays, setCalendarDays] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [shifts, setShifts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setCurrentMonth(
@@ -66,11 +36,18 @@ const ScheduleScreen = () => {
     );
 
     generateCalendarDays(selectedDate);
-
     setSelectedDay(new Date().getDate());
+
+    // Simulate loading shifts
+    const timer = setTimeout(() => {
+      setShifts([]);
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  const generateCalendarDays = (date: Date) => {
+  const generateCalendarDays = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
 
@@ -126,7 +103,7 @@ const ScheduleScreen = () => {
     generateCalendarDays(newDate);
   };
 
-  const isToday = (day: number, isCurrentMonth: boolean) => {
+  const isToday = (day, isCurrentMonth) => {
     const today = new Date();
     return (
       isCurrentMonth &&
@@ -134,6 +111,10 @@ const ScheduleScreen = () => {
       selectedDate.getMonth() === today.getMonth() &&
       selectedDate.getFullYear() === today.getFullYear()
     );
+  };
+
+  const handleNotificationPress = () => {
+    // Handle notification press
   };
 
   const renderShiftItem = ({ item }) => (
@@ -154,21 +135,28 @@ const ScheduleScreen = () => {
     </TouchableOpacity>
   );
 
+  const EmptyShifts = () => (
+    <View style={styles.emptyShifts}>
+      <FontAwesome name="calendar-o" size={50} color="#333" />
+      <Text style={styles.emptyText}>No shifts scheduled</Text>
+      <Text style={styles.emptySubtext}>
+        Your upcoming shifts will appear here
+      </Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Schedule</Text>
-          <View style={styles.headerRight} />
-        </View>
+        <CustomHeader
+          title="Schedule"
+          showBackButton={false}
+          rightComponent={
+            <NotificationButton onPress={handleNotificationPress} />
+          }
+        />
       </SafeAreaView>
 
       <View style={styles.calendarContainer}>
@@ -224,12 +212,21 @@ const ScheduleScreen = () => {
 
       <View style={styles.shiftsContainer}>
         <Text style={styles.shiftsTitle}>Upcoming Shifts</Text>
-        <FlatList
-          data={SHIFTS}
-          renderItem={renderShiftItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.shiftsList}
-        />
+
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#F09737" />
+          </View>
+        ) : shifts.length > 0 ? (
+          <FlatList
+            data={shifts}
+            renderItem={renderShiftItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.shiftsList}
+          />
+        ) : (
+          <EmptyShifts />
+        )}
       </View>
     </View>
   );
@@ -242,25 +239,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     backgroundColor: "#000",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    height: 60,
-    marginTop: 50,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerRight: {
-    width: 40,
   },
   calendarContainer: {
     backgroundColor: "#111",
@@ -336,6 +314,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 16,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   shiftsList: {
     paddingBottom: 100,
   },
@@ -379,6 +362,21 @@ const styles = StyleSheet.create({
     top: "50%",
     marginTop: 6,
   },
+  emptyShifts: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#666",
+    fontSize: 18,
+    marginTop: 16,
+  },
+  emptySubtext: {
+    color: "#444",
+    textAlign: "center",
+    marginTop: 8,
+  },
 });
 
-export default ScheduleScreen;
+export default MemberScheduleScreen;

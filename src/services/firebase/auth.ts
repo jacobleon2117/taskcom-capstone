@@ -26,7 +26,7 @@ interface UserRegistrationData {
 
 export const registerWithEmailAndPassword = async (
   userData: UserRegistrationData
-) => {
+): Promise<{ user: User; organizationCode: string | null }> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
@@ -35,32 +35,57 @@ export const registerWithEmailAndPassword = async (
     );
     const user = userCredential.user;
 
-    const organizationCode = generateSixDigitCode();
-
-    const organizationRef = doc(
-      collection(db, "organizations"),
-      organizationCode
-    );
-    await setDoc(organizationRef, {
-      name: userData.organizationName,
-      createdBy: user.uid,
-      createdAt: new Date(),
-      code: organizationCode,
-    });
-
+    // Only create the basic user profile, without organization details
     const userRef = doc(db, "users", user.uid);
     await setDoc(userRef, {
       uid: user.uid,
       email: userData.email,
       displayName: userData.displayName,
-      organizationCode: organizationCode,
-      role: "admin",
+      role: "pending", // Temporary role until they create/join an org
       createdAt: new Date(),
     });
 
-    return { user, organizationCode };
+    return { user, organizationCode: null };
   } catch (error) {
     console.error("Registration error:", error);
+    throw error;
+  }
+};
+
+export const createOrganization = async (
+  userId: string,
+  organizationName: string
+): Promise<string> => {
+  try {
+    const organizationCode = generateSixDigitCode();
+
+    // Create the organization
+    const organizationRef = doc(
+      collection(db, "organizations"),
+      organizationCode
+    );
+    await setDoc(organizationRef, {
+      name: organizationName,
+      createdBy: userId,
+      createdAt: new Date(),
+      code: organizationCode,
+    });
+
+    // Update the user with organization details
+    const userRef = doc(db, "users", userId);
+    await setDoc(
+      userRef,
+      {
+        organizationCode: organizationCode,
+        organizationName: organizationName,
+        role: "admin",
+      },
+      { merge: true }
+    );
+
+    return organizationCode;
+  } catch (error) {
+    console.error("Organization creation error:", error);
     throw error;
   }
 };

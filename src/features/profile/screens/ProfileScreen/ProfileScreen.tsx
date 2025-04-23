@@ -10,16 +10,30 @@ import {
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "../../../auth/context/AuthContext";
+import CustomHeader from "@/components/CustomHeader";
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      Alert.alert("Logout Error", "Failed to log out. Please try again.");
-    }
+    Alert.alert("Logout", "Are you sure you want to log out?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await logout();
+            // Navigation will be handled by AppNavigator
+          } catch (error) {
+            Alert.alert("Logout Error", "Failed to log out. Please try again.");
+          }
+        },
+      },
+    ]);
   };
 
   const settingsItems = [
@@ -37,16 +51,14 @@ const ProfileScreen = () => {
       handleLogout();
     } else {
       // Handle other settings
-      Alert.alert("Setting", `${id} setting pressed`);
+      Alert.alert("Setting", `${id} setting will be implemented soon`);
     }
   };
 
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-        </View>
+        <CustomHeader title="Profile" showBackButton={false} />
       </SafeAreaView>
 
       <ScrollView style={styles.scrollContent}>
@@ -89,6 +101,11 @@ const ProfileScreen = () => {
                 style={styles.settingIcon}
               />
               <Text style={styles.settingText}>{item.title}</Text>
+              {item.id === "logout" ? (
+                <View style={styles.logoutIndicator} />
+              ) : (
+                <FontAwesome name="chevron-right" size={12} color="#aaa" />
+              )}
             </TouchableOpacity>
           ))}
         </View>
@@ -106,19 +123,6 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     backgroundColor: "#000",
-  },
-  header: {
-    height: 60,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16,
-    marginTop: 50,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
   },
   scrollContent: {
     flex: 1,
@@ -191,10 +195,18 @@ const styles = StyleSheet.create({
   settingIcon: {
     width: 24,
     marginRight: 16,
+    textAlign: "center",
   },
   settingText: {
     color: "#fff",
     fontSize: 16,
+    flex: 1,
+  },
+  logoutIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#F09737",
   },
   bottomSpacer: {
     height: 100,

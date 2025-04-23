@@ -12,11 +12,12 @@ import {
   signInUser,
   registerWithEmailAndPassword,
   logoutUser,
-  resetPassword,
+  resetPassword as resetPasswordService,
   joinOrganization,
+  createOrganization as createOrganizationService,
 } from "@/services/firebase/auth";
 
-export type UserRole = "admin" | "member";
+export type UserRole = "admin" | "member" | "pending";
 
 export interface UserData {
   email: string;
@@ -38,7 +39,7 @@ export interface UserWithData {
 }
 
 interface AuthContextType {
-  user: UserWithData | null; // This is the property we'll use in the AppNavigator
+  user: UserWithData | null;
   loading: boolean;
   error: string | null;
   setError: (error: string | null) => void;
@@ -147,6 +148,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         displayName,
         organizationName: "", // This will be updated later
       });
+
+      // Important: we don't fully update the user state here
+      // This allows navigation to CreateOrganization screen
+
       return user;
     } catch (err: any) {
       const errorMessage = err.message || "Failed to register";
@@ -157,7 +162,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const createOrganization = async (organizationName: string) => {
+  // Update the createOrganization function
+  const createOrganization = async (
+    organizationName: string
+  ): Promise<string> => {
     setLoading(true);
     setError(null);
 
@@ -166,13 +174,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error("User must be logged in to create an organization");
       }
 
-      // We need to update the user's organization
-      const { organizationCode } = await registerWithEmailAndPassword({
-        email: currentUser.email || "",
-        password: "", // Not used in this case
-        displayName: userData?.displayName || "",
-        organizationName,
-      });
+      // Use the renamed service function
+      const organizationCode = await createOrganizationService(
+        currentUser.uid,
+        organizationName
+      );
 
       // Refresh user data
       const userDoc = await getDoc(doc(db, "users", currentUser.uid));
@@ -245,6 +251,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       await logoutUser();
+      // Firebase auth state change will trigger the useEffect to update user state
     } catch (err: any) {
       const errorMessage = err.message || "Failed to logout";
       setError(errorMessage);
@@ -259,7 +266,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      await resetPassword(email);
+      await resetPasswordService(email);
     } catch (err: any) {
       const errorMessage = err.message || "Failed to reset password";
       setError(errorMessage);
@@ -270,7 +277,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const value = {
-    user, // This is what we'll use in the AppNavigator
+    user,
     loading,
     error,
     setError,

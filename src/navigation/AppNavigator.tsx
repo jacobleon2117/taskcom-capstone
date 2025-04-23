@@ -1,3 +1,4 @@
+// src/navigation/AppNavigator.tsx
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -5,25 +6,66 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { AuthProvider, useAuth } from "@/features/auth/context/AuthContext";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 
+// Import navigation types
+import {
+  AuthStackParamList,
+  MainTabParamList,
+  MemberStackParamList,
+  AdminStackParamList,
+} from "@/types/navigation";
+
 // Auth Screens
-import AuthNavigator from "./AuthNavigator";
+import LoginScreen from "@/features/auth/screens/LoginScreen/LoginScreen";
+import SignupScreen from "@/features/auth/screens/SignupScreen/SignupScreen";
+import ForgotPasswordScreen from "@/features/auth/screens/ForgotPasswordScreen/ForgotPasswordScreen";
+import CreateOrganizationScreen from "@/features/auth/screens/OrgCreationScreen/OrgCreationScreen";
+import JoinOrganizationScreen from "@/features/auth/screens/OrgJoinScreen/JoinOrgScreen";
 
 // Custom Components
 import CustomTabBar from "@/components/CustomTabBar";
 
 // Member Screens
 import HomeScreen from "@/features/dashboard/screens/HomeScreen/HomeScreen";
-import MapScreen from "@/features/member/screens/MapScreen/MapScreen";
-import MissionReportScreen from "@/features/member/screens/MissionReportScreen/MissionReportScreen";
+import MemberMapScreen from "@/features/member/screens/MapScreen";
+import MemberMissionReportScreen from "@/features/member/screens/MemberMissionReportScreen";
+import MemberScheduleScreen from "@/features/member/screens/MemberScheduleScreen";
 import ProfileScreen from "@/features/profile/screens/ProfileScreen/ProfileScreen";
+import MessagesScreen from "@/features/dashboard/screens/MessagesScreen/MessagesScreen";
 
 // Admin Screens
-import TeamScreen from "@/features/admin/screens/TeamManagementScreen/TeamManagementScreen";
-// import SettingsScreen from "@/features/auth/admin/screens/SettingsScreen";
+import AdminMapScreen from "@/features/admin/screens/MapScreen";
+import AdminMissionReportScreen from "@/features/admin/screens/AdminMissionReportScreen";
+import AdminScheduleScreen from "@/features/admin/screens/AdminScheduleScreen";
+import TeamScreen from "@/features/admin/screens/TeamManagementScreen";
 
 // Create stack and tab navigators
 const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<MainTabParamList>();
+const AuthStack = createStackNavigator<AuthStackParamList>();
+const MemberStack = createStackNavigator<MemberStackParamList>();
+const AdminStack = createStackNavigator<AdminStackParamList>();
+
+// Auth Navigator
+const AuthNavigator = () => {
+  return (
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="Signup" component={SignupScreen} />
+      <AuthStack.Screen
+        name="ForgotPassword"
+        component={ForgotPasswordScreen}
+      />
+      <AuthStack.Screen
+        name="CreateOrganization"
+        component={CreateOrganizationScreen}
+      />
+      <AuthStack.Screen
+        name="JoinOrganization"
+        component={JoinOrganizationScreen}
+      />
+    </AuthStack.Navigator>
+  );
+};
 
 // Member Tab Navigator
 const MemberTabNavigator = () => {
@@ -35,8 +77,9 @@ const MemberTabNavigator = () => {
       }}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Map" component={MapScreen} />
-      <Tab.Screen name="Missions" component={MissionReportScreen} />
+      <Tab.Screen name="Map" component={MemberMapScreen} />
+      <Tab.Screen name="Schedule" component={MemberScheduleScreen} />
+      <Tab.Screen name="Missions" component={MemberMissionReportScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
@@ -52,14 +95,38 @@ const AdminTabNavigator = () => {
       }}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Map" component={MapScreen} />
-      <Tab.Screen name="Missions" component={MissionReportScreen} />
+      <Tab.Screen name="Map" component={AdminMapScreen} />
+      <Tab.Screen name="Schedule" component={AdminScheduleScreen} />
+      <Tab.Screen name="Missions" component={AdminMissionReportScreen} />
       <Tab.Screen name="Team" component={TeamScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };
 
-// Main stack with conditional rendering based on auth state
+// Main stack with additional screens for members
+const MemberStackNavigator = () => {
+  return (
+    <MemberStack.Navigator screenOptions={{ headerShown: false }}>
+      <MemberStack.Screen name="MemberTabs" component={MemberTabNavigator} />
+      <MemberStack.Screen name="Messages" component={MessagesScreen} />
+      {/* Add other member-specific screens that need to be outside the tab navigator */}
+    </MemberStack.Navigator>
+  );
+};
+
+// Admin stack with additional screens
+const AdminStackNavigator = () => {
+  return (
+    <AdminStack.Navigator screenOptions={{ headerShown: false }}>
+      <AdminStack.Screen name="AdminTabs" component={AdminTabNavigator} />
+      <AdminStack.Screen name="Messages" component={MessagesScreen} />
+      {/* Add other admin-specific screens that need to be outside the tab navigator */}
+    </AdminStack.Navigator>
+  );
+};
+
+// Main app navigator with conditional rendering based on auth state
 const AppNavigatorContent: React.FC = () => {
   const { user, loading } = useAuth();
 
@@ -75,10 +142,10 @@ const AppNavigatorContent: React.FC = () => {
           <Stack.Screen name="Auth" component={AuthNavigator} />
         ) : user.role === "admin" ? (
           // User is admin - show admin screens
-          <Stack.Screen name="AdminTabs" component={AdminTabNavigator} />
+          <Stack.Screen name="AdminStack" component={AdminStackNavigator} />
         ) : (
           // User is member - show member screens
-          <Stack.Screen name="MemberTabs" component={MemberTabNavigator} />
+          <Stack.Screen name="MemberStack" component={MemberStackNavigator} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

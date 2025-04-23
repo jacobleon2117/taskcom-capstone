@@ -3,10 +3,10 @@ import {
   StyleSheet,
   View,
   Text,
-  StatusBar,
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  StatusBar,
 } from "react-native";
 import {
   Ionicons,
@@ -14,7 +14,9 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../../../auth/context/AuthContext";
+import { useAuth } from "@/features/auth/context/AuthContext";
+import CustomHeader from "@/components/CustomHeader";
+import NotificationButton from "@/components/ui/NotificationButton";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -27,20 +29,28 @@ const HomeScreen = () => {
     setNotificationsVisible(true);
   };
 
+  const WelcomeHeader = () => (
+    <View style={styles.welcomeHeader}>
+      <View>
+        <Text style={styles.welcomeText}>Welcome back,</Text>
+        <Text style={styles.userName}>{firstName}</Text>
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
 
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.welcomeHeader}>
-          <View>
-            <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.userName}>{firstName}</Text>
-          </View>
-          <TouchableOpacity onPress={handleNotificationPress}>
-            <Ionicons name="notifications-outline" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+        <CustomHeader
+          title=""
+          showBackButton={false}
+          rightComponent={
+            <NotificationButton onPress={handleNotificationPress} />
+          }
+        />
+        <WelcomeHeader />
       </SafeAreaView>
 
       <ScrollView
@@ -50,7 +60,7 @@ const HomeScreen = () => {
         <View style={styles.cardsContainer}>
           <TouchableOpacity
             style={[styles.card, styles.smallCard]}
-            onPress={() => navigation.navigate("Messages" as never)}
+            onPress={() => navigation.navigate("Messages")}
           >
             <View style={styles.cardContent}>
               <View style={styles.iconTextRow}>
@@ -68,7 +78,7 @@ const HomeScreen = () => {
 
           <TouchableOpacity
             style={[styles.card, styles.largeCard]}
-            onPress={() => navigation.navigate("Schedule" as never)}
+            onPress={() => navigation.navigate("Schedule")}
           >
             <View style={styles.cardContent}>
               <View style={styles.iconTextRow}>
@@ -94,7 +104,7 @@ const HomeScreen = () => {
                 style={styles.actionButtonIcon}
               />
               <Text style={styles.actionButtonLabel}>Distance</Text>
-              <Text style={styles.actionButtonValue}>0 miles</Text>
+              <Text style={styles.actionButtonValue}>--</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionButton}>
@@ -105,7 +115,7 @@ const HomeScreen = () => {
                 style={styles.actionButtonIcon}
               />
               <Text style={styles.actionButtonLabel}>Stairs</Text>
-              <Text style={styles.actionButtonValue}>0 steps</Text>
+              <Text style={styles.actionButtonValue}>--</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -125,12 +135,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
   welcomeHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     paddingHorizontal: 16,
-    marginTop: 50,
-    marginBottom: 24,
+    paddingBottom: 16,
   },
   welcomeText: {
     fontSize: 16,

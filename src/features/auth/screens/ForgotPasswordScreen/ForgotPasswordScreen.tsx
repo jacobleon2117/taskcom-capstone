@@ -1,3 +1,4 @@
+// src/features/auth/screens/ForgotPasswordScreen/ForgotPasswordScreen.tsx
 import React, { useState } from "react";
 import {
   View,
@@ -8,26 +9,17 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { useAuth } from "../../context/AuthContext";
+import { ForgotPasswordScreenNavigationProp } from "@/types/navigation";
 
 import BackgroundGrid from "@/features/auth/components/BackgroundGrid";
 import EmailField from "@/features/auth/components/EmailField";
 import AuthButton from "@/features/auth/components/AuthButton";
 import LinkText from "@/features/auth/components/LinkText";
+import AuthHeader from "@/features/auth/components/AuthHeader";
+import ResetPasswordSuccess from "@/features/auth/components/ResetPasswordSuccess";
 
 import { validateEmail } from "@/utils/validation";
-
-type AuthStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-  ForgotPassword: undefined;
-};
-
-type ForgotPasswordScreenNavigationProp = StackNavigationProp<
-  AuthStackParamList,
-  "ForgotPassword"
->;
 
 interface ForgotPasswordScreenProps {
   navigation: ForgotPasswordScreenNavigationProp;
@@ -43,6 +35,8 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
   const { resetPassword, loading, error } = useAuth();
 
   const handleResetPassword = async () => {
+    setEmailError("");
+
     const emailValidationError = validateEmail(email);
     if (emailValidationError) {
       setEmailError(emailValidationError);
@@ -69,13 +63,10 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
       <BackgroundGrid>
         <View style={styles.container}>
           <View style={styles.content}>
-            <Text style={styles.title}>Check Your Email</Text>
-            <Text style={styles.subtitle}>
-              We've sent a password reset link to {email}. Please check your
-              inbox and follow the instructions.
-            </Text>
-
-            <AuthButton title="Back to Login" onPress={handleBackToLogin} />
+            <ResetPasswordSuccess
+              email={email}
+              onBackToLogin={handleBackToLogin}
+            />
           </View>
         </View>
       </BackgroundGrid>
@@ -93,10 +84,10 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-            <Text style={styles.title}>Reset Password</Text>
-            <Text style={styles.subtitle}>
-              Enter the email address associated with your account
-            </Text>
+            <AuthHeader
+              title="Reset Password"
+              subtitle="Enter the email address associated with your account"
+            />
 
             <EmailField
               value={email}
@@ -139,19 +130,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 24,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "white",
-    textAlign: "center",
-    marginBottom: 32,
   },
   loginContainer: {
     flexDirection: "row",

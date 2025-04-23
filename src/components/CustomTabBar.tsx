@@ -22,8 +22,6 @@ const getIcon = (routeName: string, isFocused: boolean) => {
       return <Ionicons name="people" size={iconSize} color={iconColor} />;
     case "Profile":
       return <Ionicons name="person" size={iconSize} color={iconColor} />;
-    case "Settings":
-      return <Ionicons name="settings" size={iconSize} color={iconColor} />;
     default:
       return <Ionicons name="apps" size={iconSize} color={iconColor} />;
   }
@@ -65,10 +63,7 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
           };
 
           // Skip rendering tabs that are admin-only if user is not an admin
-          if (
-            (route.name === "Team" || route.name === "Settings") &&
-            !isAdmin
-          ) {
+          if (route.name === "Team" && !isAdmin) {
             return null;
           }
 
