@@ -17,13 +17,22 @@ import MapboxGL from "@rnmapbox/maps";
 import CustomHeader from "@/components/CustomHeader";
 import NotificationButton from "@/components/ui/NotificationButton";
 
+// Type definitions
+interface TeamMember {
+  id: string;
+  name: string;
+  coordinate?: [number, number];
+}
+
+interface Mission {
+  id: string;
+  // Add other mission-related properties
+}
+
 // Configure Mapbox
 MapboxGL.setAccessToken(process.env.MAPBOX_ACCESS_TOKEN);
 
-// Empty team members array - would be populated from Firebase
-const TEAM_MEMBERS = [];
-
-const AdminMapScreen = () => {
+const AdminMapScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
 
@@ -31,14 +40,14 @@ const AdminMapScreen = () => {
   const mapRef = useRef<MapboxGL.MapView>(null);
   const cameraRef = useRef<MapboxGL.Camera>(null);
   const [location, setLocation] = useState<[number, number] | null>(null);
-  const [followUserLocation, setFollowUserLocation] = useState(true);
-  const [loadingLocation, setLoadingLocation] = useState(true);
+  const [followUserLocation, setFollowUserLocation] = useState<boolean>(true);
+  const [loadingLocation, setLoadingLocation] = useState<boolean>(true);
 
   // Mission and team state
-  const [activeMission, setActiveMission] = useState(null);
-  const [teamMembers, setTeamMembers] = useState(TEAM_MEMBERS);
-  const [showTeamModal, setShowTeamModal] = useState(false);
-  const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
+  const [activeMission, setActiveMission] = useState<Mission | null>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [showTeamModal, setShowTeamModal] = useState<boolean>(false);
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState<string[]>([]);
 
   // Get user location
   useEffect(() => {
@@ -70,14 +79,19 @@ const AdminMapScreen = () => {
   }, []);
 
   const handleNotificationPress = () => {
-    // Handle notification press
+    Alert.alert("Notifications", "No new notifications");
   };
 
   const handleStartTeamMission = () => {
+    if (selectedTeamMembers.length === 0) {
+      Alert.alert("Error", "Please select at least one team member");
+      return;
+    }
+
     setShowTeamModal(true);
   };
 
-  const renderTeamMember = (member: any) => {
+  const renderTeamMember = (member: TeamMember) => {
     if (!member.coordinate) return null;
 
     return (

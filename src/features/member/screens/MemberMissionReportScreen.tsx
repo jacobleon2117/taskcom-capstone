@@ -9,6 +9,7 @@ import {
   StatusBar,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -16,19 +17,50 @@ import CustomHeader from "@/components/CustomHeader";
 import NotificationButton from "@/components/ui/NotificationButton";
 import { useAuth } from "@/features/auth/context/AuthContext";
 
-const MemberMissionReportScreen = () => {
+// Type definitions for mission report
+interface MissionMetrics {
+  distanceCovered: string;
+  duration: string;
+  pinsDropped: number;
+}
+
+interface MissionReport {
+  id: string;
+  title: string;
+  date: string;
+  status: "Completed" | "Ongoing";
+  summary: string;
+  metrics: MissionMetrics;
+}
+
+const MemberMissionReportScreen: React.FC = () => {
   const navigation = useNavigation();
-  const [selectedFilter, setSelectedFilter] = useState("All");
-  const [loading, setLoading] = useState(true);
-  const [missionReports, setMissionReports] = useState([]);
   const { user } = useAuth();
+  const [selectedFilter, setSelectedFilter] = useState<string>("All");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [missionReports, setMissionReports] = useState<MissionReport[]>([]);
 
   const filters = ["All", "Recent", "Completed", "Ongoing"];
 
   useEffect(() => {
     // Simulate loading reports
     const timer = setTimeout(() => {
-      setMissionReports([]);
+      // Mock data for demonstration
+      const mockReports: MissionReport[] = [
+        {
+          id: "1",
+          title: "Downtown Survey",
+          date: "2023-06-15",
+          status: "Completed",
+          summary: "Comprehensive survey of downtown area infrastructure",
+          metrics: {
+            distanceCovered: "5.2 km",
+            duration: "3h 45m",
+            pinsDropped: 12,
+          },
+        },
+      ];
+      setMissionReports(mockReports);
       setLoading(false);
     }, 1000);
 
@@ -36,10 +68,10 @@ const MemberMissionReportScreen = () => {
   }, []);
 
   const handleNotificationPress = () => {
-    // Handle notification press
+    Alert.alert("Notifications", "No new notifications");
   };
 
-  const renderReport = ({ item }) => (
+  const renderReport = ({ item }: { item: MissionReport }) => (
     <TouchableOpacity style={styles.reportCard}>
       <View style={styles.reportHeader}>
         <Text style={styles.reportTitle}>{item.title}</Text>
@@ -73,7 +105,10 @@ const MemberMissionReportScreen = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.viewDetailsButton}>
+      <TouchableOpacity
+        style={styles.viewDetailsButton}
+        onPress={() => Alert.alert("Details", "Mission details coming soon")}
+      >
         <Text style={styles.viewDetailsText}>View Details</Text>
         <Ionicons name="chevron-forward" size={16} color="#F09737" />
       </TouchableOpacity>

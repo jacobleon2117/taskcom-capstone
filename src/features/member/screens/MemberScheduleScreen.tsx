@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   StatusBar,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -15,17 +16,32 @@ import CustomHeader from "@/components/CustomHeader";
 import NotificationButton from "@/components/ui/NotificationButton";
 import { useAuth } from "@/features/auth/context/AuthContext";
 
+// Type definitions
+interface CalendarDay {
+  date: number;
+  isCurrentMonth: boolean;
+}
+
+interface Shift {
+  id: string;
+  date: number;
+  title: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+}
+
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const MemberScheduleScreen = () => {
+const MemberScheduleScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
-  const [currentMonth, setCurrentMonth] = useState("");
-  const [calendarDays, setCalendarDays] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [shifts, setShifts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [currentMonth, setCurrentMonth] = useState<string>("");
+  const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setCurrentMonth(
@@ -40,14 +56,25 @@ const MemberScheduleScreen = () => {
 
     // Simulate loading shifts
     const timer = setTimeout(() => {
-      setShifts([]);
+      // Mock shift data for demonstration
+      const mockShifts: Shift[] = [
+        {
+          id: "1",
+          date: new Date().getDate(),
+          title: "Morning Patrol",
+          startTime: "08:00 AM",
+          endTime: "12:00 PM",
+          location: "Downtown Area",
+        },
+      ];
+      setShifts(mockShifts);
       setLoading(false);
     }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
 
-  const generateCalendarDays = (date) => {
+  const generateCalendarDays = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
 
@@ -56,7 +83,7 @@ const MemberScheduleScreen = () => {
 
     const prevMonthLastDate = new Date(year, month, 0).getDate();
 
-    const days = [];
+    const days: CalendarDay[] = [];
 
     for (let i = 0; i < firstDay; i++) {
       days.push({
@@ -103,7 +130,7 @@ const MemberScheduleScreen = () => {
     generateCalendarDays(newDate);
   };
 
-  const isToday = (day, isCurrentMonth) => {
+  const isToday = (day: number, isCurrentMonth: boolean) => {
     const today = new Date();
     return (
       isCurrentMonth &&
@@ -114,11 +141,16 @@ const MemberScheduleScreen = () => {
   };
 
   const handleNotificationPress = () => {
-    // Handle notification press
+    Alert.alert("Notifications", "No new notifications");
   };
 
-  const renderShiftItem = ({ item }) => (
-    <TouchableOpacity style={styles.shiftItem}>
+  const renderShiftItem = ({ item }: { item: Shift }) => (
+    <TouchableOpacity
+      style={styles.shiftItem}
+      onPress={() =>
+        Alert.alert("Shift Details", `${item.title} at ${item.location}`)
+      }
+    >
       <View style={styles.shiftDateContainer}>
         <Text style={styles.shiftDate}>{item.date}</Text>
       </View>

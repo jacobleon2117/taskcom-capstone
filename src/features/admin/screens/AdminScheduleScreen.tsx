@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Modal,
   TextInput,
+  Alert,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -17,27 +18,47 @@ import CustomHeader from "@/components/CustomHeader";
 import NotificationButton from "@/components/ui/NotificationButton";
 import { useAuth } from "@/features/auth/context/AuthContext";
 
+// Type definitions
+interface CalendarDay {
+  date: number;
+  isCurrentMonth: boolean;
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+}
+
+interface Shift {
+  id: string;
+  date: number;
+  title: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+}
+
 const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const AdminScheduleScreen = () => {
+const AdminScheduleScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
-  const [currentMonth, setCurrentMonth] = useState("");
-  const [calendarDays, setCalendarDays] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [shifts, setShifts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddShiftModal, setShowAddShiftModal] = useState(false);
-  const [newShiftTitle, setNewShiftTitle] = useState("");
-  const [newShiftStartTime, setNewShiftStartTime] = useState("");
-  const [newShiftEndTime, setNewShiftEndTime] = useState("");
-  const [newShiftLocation, setNewShiftLocation] = useState("");
-  const [selectedTeamMembers, setSelectedTeamMembers] = useState([]);
-  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState<string>("");
+  const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showAddShiftModal, setShowAddShiftModal] = useState<boolean>(false);
+  const [newShiftTitle, setNewShiftTitle] = useState<string>("");
+  const [newShiftStartTime, setNewShiftStartTime] = useState<string>("");
+  const [newShiftEndTime, setNewShiftEndTime] = useState<string>("");
+  const [newShiftLocation, setNewShiftLocation] = useState<string>("");
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState<string[]>([]);
+  const [showTeamModal, setShowTeamModal] = useState<boolean>(false);
 
   // Empty team members array - would be populated from Firebase
-  const TEAM_MEMBERS = [];
+  const TEAM_MEMBERS: TeamMember[] = [];
 
   useEffect(() => {
     setCurrentMonth(
@@ -59,7 +80,7 @@ const AdminScheduleScreen = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const generateCalendarDays = (date) => {
+  const generateCalendarDays = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
 
@@ -68,7 +89,7 @@ const AdminScheduleScreen = () => {
 
     const prevMonthLastDate = new Date(year, month, 0).getDate();
 
-    const days = [];
+    const days: CalendarDay[] = [];
 
     for (let i = 0; i < firstDay; i++) {
       days.push({
@@ -115,7 +136,7 @@ const AdminScheduleScreen = () => {
     generateCalendarDays(newDate);
   };
 
-  const isToday = (day, isCurrentMonth) => {
+  const isToday = (day: number, isCurrentMonth: boolean) => {
     const today = new Date();
     return (
       isCurrentMonth &&
@@ -126,7 +147,7 @@ const AdminScheduleScreen = () => {
   };
 
   const handleNotificationPress = () => {
-    // Handle notification press
+    Alert.alert("Notifications", "No new notifications");
   };
 
   const handleAddShift = () => {
@@ -173,7 +194,7 @@ const AdminScheduleScreen = () => {
     </TouchableOpacity>
   );
 
-  const renderShiftItem = ({ item }) => (
+  const renderShiftItem = ({ item }: { item: Shift }) => (
     <TouchableOpacity style={styles.shiftItem}>
       <View style={styles.shiftDateContainer}>
         <Text style={styles.shiftDate}>{item.date}</Text>

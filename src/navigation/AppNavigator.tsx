@@ -25,18 +25,18 @@ import JoinOrganizationScreen from "@/features/auth/screens/OrgJoinScreen/JoinOr
 import CustomTabBar from "@/components/CustomTabBar";
 
 // Member Screens
-import HomeScreen from "@/features/dashboard/screens/HomeScreen/HomeScreen";
-import MemberMapScreen from "@/features/member/screens/MapScreen";
+import HomeScreen from "@/features/dashboard/screens/HomeScreen";
+import MemberMapScreen from "@/features/member/screens/MemberMapScreen";
 import MemberMissionReportScreen from "@/features/member/screens/MemberMissionReportScreen";
 import MemberScheduleScreen from "@/features/member/screens/MemberScheduleScreen";
-import ProfileScreen from "@/features/profile/screens/ProfileScreen/ProfileScreen";
-import MessagesScreen from "@/features/dashboard/screens/MessagesScreen/MessagesScreen";
+import ProfileScreen from "@/features/dashboard/screens/ProfileScreen";
+import MessagesScreen from "@/features/dashboard/screens/MessagesScreen";
 
 // Admin Screens
-import AdminMapScreen from "@/features/admin/screens/MapScreen";
+import AdminMapScreen from "@/features/admin/screens/AdminMapScreen";
 import AdminMissionReportScreen from "@/features/admin/screens/AdminMissionReportScreen";
 import AdminScheduleScreen from "@/features/admin/screens/AdminScheduleScreen";
-import TeamScreen from "@/features/admin/screens/TeamManagementScreen";
+import TeamScreen from "@/features/admin/screens/AdminTeamManagementScreen";
 
 // Create stack and tab navigators
 const Stack = createStackNavigator();

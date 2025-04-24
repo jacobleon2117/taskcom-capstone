@@ -10,6 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TextInput,
+  Alert,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -17,11 +18,25 @@ import CustomHeader from "@/components/CustomHeader";
 import NotificationButton from "@/components/ui/NotificationButton";
 import { useAuth } from "@/features/auth/context/AuthContext";
 
+// Define an interface for mission report
+interface MissionReport {
+  id: string;
+  title: string;
+  date: string;
+  status: string;
+  summary: string;
+  metrics: {
+    distanceCovered: string;
+    duration: string;
+    pinsDropped: number;
+  };
+}
+
 const AdminMissionReportScreen = () => {
   const navigation = useNavigation();
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [loading, setLoading] = useState(true);
-  const [missionReports, setMissionReports] = useState([]);
+  const [missionReports, setMissionReports] = useState<MissionReport[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
 
@@ -38,14 +53,15 @@ const AdminMissionReportScreen = () => {
   }, []);
 
   const handleNotificationPress = () => {
-    // Handle notification press
+    // Placeholder for notification handling
+    Alert.alert("Notifications", "No new notifications");
   };
 
   const handleExportReports = () => {
     Alert.alert("Feature", "Export reports feature will be available soon");
   };
 
-  const renderReport = ({ item }) => (
+  const renderReport = ({ item }: { item: MissionReport }) => (
     <TouchableOpacity style={styles.reportCard}>
       <View style={styles.reportHeader}>
         <Text style={styles.reportTitle}>{item.title}</Text>
@@ -86,14 +102,14 @@ const AdminMissionReportScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.adminAction}>
-          <FontAwesome name="edit" size={16} color="#3498db" />
+          <Ionicons name="create-outline" size={18} color="#3498db" />
           <Text style={[styles.adminActionText, { color: "#3498db" }]}>
             Edit
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.adminAction}>
-          <FontAwesome name="trash" size={16} color="#e74c3c" />
+          <Ionicons name="trash-outline" size={18} color="#e74c3c" />
           <Text style={[styles.adminActionText, { color: "#e74c3c" }]}>
             Delete
           </Text>

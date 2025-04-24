@@ -1,3 +1,4 @@
+// src/components/CustomHeader.tsx
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,12 +8,14 @@ interface CustomHeaderProps {
   title: string;
   showBackButton?: boolean;
   rightComponent?: React.ReactNode;
+  transparent?: boolean; // New prop for transparency
 }
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({
   title,
   showBackButton = true,
   rightComponent,
+  transparent = false, // Default to false
 }) => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -24,7 +27,9 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
     showBackButton && !isMainScreen && navigation.canGoBack();
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, transparent && styles.transparentContainer]}
+    >
       <View style={styles.leftContainer}>
         {shouldShowBackButton ? (
           <TouchableOpacity
@@ -38,7 +43,9 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
         )}
       </View>
 
-      <Text style={styles.title}>{title}</Text>
+      <Text style={[styles.title, transparent && styles.transparentTitle]}>
+        {title}
+      </Text>
 
       <View style={styles.rightContainer}>
         {rightComponent || <View style={styles.placeholder} />}
@@ -55,8 +62,9 @@ const styles = StyleSheet.create({
     height: 60,
     paddingHorizontal: 16,
     backgroundColor: "#000",
-    borderBottomWidth: 1,
-    borderBottomColor: "#222",
+  },
+  transparentContainer: {
+    backgroundColor: "rgba(0,0,0,0.6)", // 60% transparent
   },
   leftContainer: {
     width: 40,
@@ -73,7 +81,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#fff",
-    textAlign: "center",
+    textAlign: "left", // Align left
+  },
+  transparentTitle: {
+    color: "#fff", // Adjust color if needed
   },
   placeholder: {
     width: 24,

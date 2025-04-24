@@ -9,10 +9,14 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import { useAuth } from "../../../auth/context/AuthContext";
+import { useNavigation } from "@react-navigation/native";
+import { ProfileScreenNavigationProp } from "@/types/navigation";
+import { useAuth } from "../../auth/context/AuthContext";
 import CustomHeader from "@/components/CustomHeader";
+import NotificationButton from "@/components/ui/NotificationButton";
 
 const ProfileScreen = () => {
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -55,10 +59,53 @@ const ProfileScreen = () => {
     }
   };
 
+  const TeamSettingsSection = () => {
+    if (user?.role !== "admin") return null;
+
+    return (
+      <View style={styles.settingsCard}>
+        <Text style={styles.sectionTitle}>Team Settings</Text>
+        <TouchableOpacity
+          style={styles.settingItem}
+          onPress={() => navigation.navigate("AdminTeamManagementScreen")}
+        >
+          <Ionicons
+            name="people"
+            size={20}
+            color="#fff"
+            style={styles.settingIcon}
+          />
+          <Text style={styles.settingText}>Team Management</Text>
+          <Ionicons name="chevron-forward" size={12} color="#aaa" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingItem}>
+          <Ionicons
+            name="person-add"
+            size={20}
+            color="#fff"
+            style={styles.settingIcon}
+          />
+          <Text style={styles.settingText}>Invite Team Members</Text>
+          <Ionicons name="chevron-forward" size={12} color="#aaa" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const handleNotificationPress = () => {
+    Alert.alert("Notifications", "No new notifications");
+  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <CustomHeader title="Profile" showBackButton={false} />
+        <CustomHeader
+          title="Profile"
+          showBackButton={false}
+          rightComponent={
+            <NotificationButton onPress={handleNotificationPress} />
+          }
+        />
       </SafeAreaView>
 
       <ScrollView style={styles.scrollContent}>
@@ -109,6 +156,9 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* Render Team Settings Section Only for Admins */}
+        <TeamSettingsSection />
 
         <View style={styles.bottomSpacer} />
       </ScrollView>

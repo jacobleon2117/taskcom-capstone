@@ -12,23 +12,39 @@ import {
   Switch,
   Alert,
 } from "react-native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import CustomHeader from "@/components/CustomHeader";
 import NotificationButton from "@/components/ui/NotificationButton";
 
-// Use empty list or real data from API
-const TEAM_MEMBERS = [];
+// Type definitions
+interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+  status: "active" | "inactive";
+  lastActive?: string;
+  isAdmin?: boolean;
+}
 
-const TeamManagementScreen = () => {
+const TeamManagementScreen: React.FC = () => {
   const navigation = useNavigation();
   const [addMemberModalVisible, setAddMemberModalVisible] = useState(false);
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberPhone, setNewMemberPhone] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState("Field Agent");
+  const [newMemberRole, setNewMemberRole] = useState<string>("Field Agent");
   const [newMemberAdmin, setNewMemberAdmin] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Use empty list with proper type
+  const [TEAM_MEMBERS, setTeamMembers] = useState<TeamMember[]>([]);
+
+  const handleNotificationPress = () => {
+    Alert.alert("Notifications", "No new notifications");
+  };
 
   const handleAddMember = () => {
     if (!newMemberName.trim() || !newMemberEmail.trim()) {
@@ -36,18 +52,28 @@ const TeamManagementScreen = () => {
       return;
     }
 
+    const newMember: TeamMember = {
+      id: `member_${Date.now()}`,
+      name: newMemberName,
+      email: newMemberEmail,
+      phone: newMemberPhone,
+      role: newMemberRole,
+      status: "active",
+      isAdmin: newMemberAdmin,
+      lastActive: new Date().toLocaleDateString(),
+    };
+
+    setTeamMembers((prevMembers) => [...prevMembers, newMember]);
+
     Alert.alert("Success", `Invitation sent to ${newMemberEmail}`);
 
+    // Reset form
     setNewMemberName("");
     setNewMemberEmail("");
     setNewMemberPhone("");
     setNewMemberRole("Field Agent");
     setNewMemberAdmin(false);
     setAddMemberModalVisible(false);
-  };
-
-  const handleNotificationPress = () => {
-    // Handle notification press
   };
 
   const AddMemberButton = () => (
@@ -66,14 +92,14 @@ const TeamManagementScreen = () => {
       member.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderMemberItem = ({ item }) => (
+  const renderMemberItem = ({ item }: { item: TeamMember }) => (
     <TouchableOpacity style={styles.memberCard}>
       <View style={styles.memberHeader}>
         <View style={styles.memberAvatar}>
           <Text style={styles.avatarText}>
             {item.name
               .split(" ")
-              .map((n) => n[0])
+              .map((n: string) => n[0])
               .join("")}
           </Text>
         </View>
@@ -103,14 +129,20 @@ const TeamManagementScreen = () => {
           <Ionicons name="mail-outline" size={16} color="#aaa" />
           <Text style={styles.detailText}>{item.email}</Text>
         </View>
-        <View style={styles.detailItem}>
-          <Ionicons name="call-outline" size={16} color="#aaa" />
-          <Text style={styles.detailText}>{item.phone}</Text>
-        </View>
-        <View style={styles.detailItem}>
-          <Ionicons name="time-outline" size={16} color="#aaa" />
-          <Text style={styles.detailText}>Last active: {item.lastActive}</Text>
-        </View>
+        {item.phone && (
+          <View style={styles.detailItem}>
+            <Ionicons name="call-outline" size={16} color="#aaa" />
+            <Text style={styles.detailText}>{item.phone}</Text>
+          </View>
+        )}
+        {item.lastActive && (
+          <View style={styles.detailItem}>
+            <Ionicons name="time-outline" size={16} color="#aaa" />
+            <Text style={styles.detailText}>
+              Last active: {item.lastActive}
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.actionButtons}>
